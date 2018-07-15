@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-type departure struct {
+type Departure struct {
 	TrainName string `json:"name"`
 	BoardID   int    `json:"boardId"`
 	StopID    int    `json:"stopId"`
@@ -14,18 +14,18 @@ type departure struct {
 	DetailsID string `json:"detailsId"`
 }
 
-type departures []departure
+type DepartureCollection []Departure
 
-func Departures(locationID int, date string) (*departures, error) {
+func Departures(locationID int, date string) (*DepartureCollection, error) {
 	return getDepartures(locationID, date)
 }
 
-func getDepartures(locationID int, date string) (*departures, error) {
+func getDepartures(locationID int, date string) (*DepartureCollection, error) {
 	path := fmt.Sprintf("departureBoard/%d?date=%s", locationID, date)
 
-	d := new(departures)
-	if err := getJSON(apiURL(path), d); err != nil {
+	departures := new(DepartureCollection)
+	if err := getJSON(apiURL(path), departures); err != nil {
 		return nil, err
 	}
-	return d, nil
+	return departures, nil
 }
