@@ -54,9 +54,38 @@ func TestScheduleBahnApiError(t *testing.T) {
 	}
 }
 
+func TestScheduleBahnApiEmptyResponse(t *testing.T) {
+	ts := exampleBahnApiServerEmptyResonse()
+	defer ts.Close()
+	bahn.ApiURL = ts.URL
+
+	locationID := 87654321
+	trainName := "ICE 123"
+	daysOfInterest := []string{"Monday"}
+	limit := 3
+
+	expectedMessage := "No departure on 2018-06-11"
+
+	schedule.TargetTime, _ = time.Parse(time.RFC3339, "2018-06-11T00:00:00Z")
+	trainSchedule, err := schedule.Schedule(locationID, trainName, daysOfInterest, limit)
+	if err != nil {
+		t.Fatalf("schedule.Schedule() failed: %s", err)
+	}
+
+	if expectedMessage != trainSchedule[0] {
+		t.Fatalf("expected schedule message to be %s, but got %s", expectedMessage, trainSchedule[0])
+	}
+}
+
 func exampleBahnApiServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, departuresApiResponses[r.URL.String()])
+	}))
+}
+
+func exampleBahnApiServerEmptyResonse() *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, "[]")
 	}))
 }
 

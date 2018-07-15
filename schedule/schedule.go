@@ -1,6 +1,7 @@
 package schedule
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/hb-dev/bahn-alerts/bahn"
@@ -16,9 +17,14 @@ func Schedule(locationID int, trainName string, daysOfInterest []string, limit i
 	count := 1
 	for count <= limit {
 		if dateOfInterest(t, daysOfInterestMap) {
-			departures, err := bahn.Departures(locationID, timeToDateString(t))
+			date := timeToDateString(t)
+			departures, err := bahn.Departures(locationID, date)
 			if err != nil {
 				return schedule, err
+			}
+			if len(*departures) == 0 {
+				schedule = append(schedule, fmt.Sprintf("No departure on %s", date))
+				count++
 			}
 			departureTimeOfTrain := departureTimeOfTrain(departures, trainName)
 			if departureTimeOfTrain != "" {
