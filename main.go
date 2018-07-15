@@ -2,26 +2,30 @@ package main
 
 import (
 	"fmt"
-	"github.com/hb-dev/bahn-alerts/bahn"
+	"github.com/hb-dev/bahn-alerts/checker"
 )
 
 func main() {
-
-	// get data from bahn api
 	locationID := 8011956 // Jena Paradies
+	time := "06:51"
+	trainName := "IsCE 1526"
+	daysOfInterest := []string{"Monday", "Tuesday", "Wednesday", "Thursday"}
 
-	departures, err := bahn.Departures(locationID, "2018-06-12")
+	changed, changedDepartureTimes, err := checker.Check(locationID, daysOfInterest, time, trainName, 10)
 	if err != nil {
-		panic(err)
+		errMsg := err.Error()
+		if errMsg == fmt.Sprintf("Train %s not found", trainName) {
+			fmt.Println(err.Error())
+			changedDepartureTimes = []string{errMsg}
+		} else {
+			panic(err)
+		}
 	}
 
-	for _, departure := range *departures {
-		fmt.Printf("%s - %s\n", departure.TrainName, departure.DateTime)
+	if changed {
+		fmt.Println("Schedule changed:", changedDepartureTimes)
 	}
 
-	// filter data
-	// define schedule parameters
-	// check for changed schedule
 	// define alert parameters
 	// alert changed schedule
 }
