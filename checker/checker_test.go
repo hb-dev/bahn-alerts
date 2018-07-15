@@ -90,7 +90,7 @@ func TestCheckNoDepartures(t *testing.T) {
 
 func exampleBahnApiServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, departuresApiResponses[r.URL.String()])
+		fmt.Fprintln(w, departuresAPIResponses[r.URL.String()])
 	}))
 }
 
@@ -107,7 +107,7 @@ func exampleFailingBahnApiServer() *httptest.Server {
 	}))
 }
 
-var departuresApiResponses = map[string]string{
+var departuresAPIResponses = map[string]string{
 	"/departureBoard/87654321?date=2018-06-11": `
     [
       {

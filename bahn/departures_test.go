@@ -41,7 +41,7 @@ func TestGetDeparturesApiError(t *testing.T) {
 
 func exampleBahnApiServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, departuresApiResponse)
+		fmt.Fprintln(w, departuresAPIResponse)
 	}))
 }
 
@@ -51,7 +51,7 @@ func exampleFailingBahnApiServer() *httptest.Server {
 	}))
 }
 
-var departuresApiResponse = `
+var departuresAPIResponse = `
     [
       {
         "name": "ICE 1526",

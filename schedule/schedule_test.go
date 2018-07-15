@@ -50,7 +50,7 @@ func TestScheduleBahnApiError(t *testing.T) {
 
 	_, err := schedule.Schedule(locationID, trainName, daysOfInterest, limit)
 	if err == nil {
-		t.Fatal("schedule.Schedule() should fail, but it didn't")
+		t.Fatal("expected schedule.Schedule() to fail, but it didn't")
 	}
 }
 
@@ -79,7 +79,7 @@ func TestScheduleBahnApiEmptyResponse(t *testing.T) {
 
 func exampleBahnApiServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, departuresApiResponses[r.URL.String()])
+		fmt.Fprintln(w, departuresAPIResponses[r.URL.String()])
 	}))
 }
 
@@ -95,7 +95,7 @@ func exampleFailingBahnApiServer() *httptest.Server {
 	}))
 }
 
-var departuresApiResponses = map[string]string{
+var departuresAPIResponses = map[string]string{
 	"/departureBoard/87654321?date=2018-06-11": `
     [
       {
