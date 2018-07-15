@@ -28,9 +28,26 @@ func TestGetDepartures(t *testing.T) {
 	}
 }
 
+func TestGetDeparturesApiError(t *testing.T) {
+	ts := exampleFailingBahnApiServer()
+	defer ts.Close()
+	bahn.ApiURL = ts.URL
+
+	_, err := bahn.Departures(123, "date")
+	if err == nil {
+		t.Fatal("bahn.Departures() should have failed, but it didn't")
+	}
+}
+
 func exampleBahnApiServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, departuresApiResponse)
+	}))
+}
+
+func exampleFailingBahnApiServer() *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(500)
 	}))
 }
 
