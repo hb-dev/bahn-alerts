@@ -13,9 +13,9 @@ import (
 )
 
 func TestCheck(t *testing.T) {
-	ts := exampleBahnApiServer()
+	ts := exampleBahnAPIServer()
 	defer ts.Close()
-	bahn.ApiURL = ts.URL
+	bahn.APIURL = ts.URL
 
 	locationID := 87654321
 	daysOfInterest := []string{"Monday", "Tuesday", "Friday"}
@@ -45,10 +45,10 @@ func TestCheck(t *testing.T) {
 	}
 }
 
-func TestCheckBahnApiError(t *testing.T) {
-	ts := exampleFailingBahnApiServer()
+func TestCheckBahnAPIError(t *testing.T) {
+	ts := exampleFailingBahnAPIServer()
 	defer ts.Close()
-	bahn.ApiURL = ts.URL
+	bahn.APIURL = ts.URL
 
 	locationID := 87654321
 	daysOfInterest := []string{"Monday"}
@@ -64,9 +64,9 @@ func TestCheckBahnApiError(t *testing.T) {
 }
 
 func TestCheckNoDepartures(t *testing.T) {
-	ts := exampleBahnApiServerEmptyResonse()
+	ts := exampleBahnAPIServerEmptyResonse()
 	defer ts.Close()
-	bahn.ApiURL = ts.URL
+	bahn.APIURL = ts.URL
 
 	locationID := 87654321
 	daysOfInterest := []string{"Monday"}
@@ -92,19 +92,19 @@ func TestCheckNoDepartures(t *testing.T) {
 	}
 }
 
-func exampleBahnApiServer() *httptest.Server {
+func exampleBahnAPIServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, departuresAPIResponses[r.URL.String()])
 	}))
 }
 
-func exampleBahnApiServerEmptyResonse() *httptest.Server {
+func exampleBahnAPIServerEmptyResonse() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "[]")
 	}))
 }
 
-func exampleFailingBahnApiServer() *httptest.Server {
+func exampleFailingBahnAPIServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(500)
 	}))

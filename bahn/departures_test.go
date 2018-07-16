@@ -10,9 +10,9 @@ import (
 )
 
 func TestGetDepartures(t *testing.T) {
-	ts := exampleBahnApiServer()
+	ts := exampleBahnAPIServer()
 	defer ts.Close()
-	bahn.ApiURL = ts.URL
+	bahn.APIURL = ts.URL
 
 	departures, err := bahn.Departures(123, "date")
 	if err != nil {
@@ -28,10 +28,10 @@ func TestGetDepartures(t *testing.T) {
 	}
 }
 
-func TestGetDeparturesApiError(t *testing.T) {
-	ts := exampleFailingBahnApiServer()
+func TestGetDeparturesAPIError(t *testing.T) {
+	ts := exampleFailingBahnAPIServer()
 	defer ts.Close()
-	bahn.ApiURL = ts.URL
+	bahn.APIURL = ts.URL
 
 	_, err := bahn.Departures(123, "date")
 	if err == nil {
@@ -39,13 +39,13 @@ func TestGetDeparturesApiError(t *testing.T) {
 	}
 }
 
-func exampleBahnApiServer() *httptest.Server {
+func exampleBahnAPIServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, departuresAPIResponse)
 	}))
 }
 
-func exampleFailingBahnApiServer() *httptest.Server {
+func exampleFailingBahnAPIServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(500)
 	}))

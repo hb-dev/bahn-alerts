@@ -8,11 +8,11 @@ import (
 	"time"
 )
 
-var ApiURL = "https://api.deutschebahn.com/freeplan/v1"
+var APIURL = "https://api.deutschebahn.com/freeplan/v1"
 var bahnClient = &http.Client{Timeout: 10 * time.Second}
 
 func apiURL(path string) string {
-	return ApiURL + "/" + path
+	return APIURL + "/" + path
 }
 
 func getJSON(url string, target interface{}) error {
