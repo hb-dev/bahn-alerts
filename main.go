@@ -13,13 +13,7 @@ func main() {
 
 	changed, changedDepartureTimes, err := checker.Check(locationID, daysOfInterest, time, trainName, 10)
 	if err != nil {
-		errMsg := err.Error()
-		if errMsg == fmt.Sprintf("Train %s not found", trainName) {
-			fmt.Println(err.Error())
-			changedDepartureTimes = []string{errMsg}
-		} else {
-			panic(err)
-		}
+		panic(err)
 	}
 
 	if changed {

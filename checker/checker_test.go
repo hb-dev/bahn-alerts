@@ -23,7 +23,7 @@ func TestCheck(t *testing.T) {
 	trainName := "ICE 123"
 	limit := 3
 
-	expectedChangedDepartureTime := []string{
+	expectedChangedDepartureTimes := []string{
 		"2018-06-11T06:51",
 		"2018-06-12T06:51",
 		"2018-06-15T06:51",
@@ -40,8 +40,8 @@ func TestCheck(t *testing.T) {
 		t.Fatal("expected changed departures, but they didn't")
 	}
 
-	if expectedChangedDepartureTime[0] != changedDepartureTimes[0] {
-		t.Fatalf("expected changed departure to be %s, got %s", expectedChangedDepartureTime[0], changedDepartureTimes[0])
+	if expectedChangedDepartureTimes[0] != changedDepartureTimes[0] {
+		t.Fatalf("expected changed departure to be %s, got %s", expectedChangedDepartureTimes[0], changedDepartureTimes[0])
 	}
 }
 
@@ -59,7 +59,7 @@ func TestCheckBahnApiError(t *testing.T) {
 	schedule.TargetTime, _ = time.Parse(time.RFC3339, "2018-06-11T00:00:00Z")
 	_, _, err := checker.Check(locationID, daysOfInterest, departureTime, trainName, limit)
 	if err == nil {
-		t.Fatal("checker.Check() should fail, but it didn't")
+		t.Fatal("expected checker.Check() to fail, but it didn't")
 	}
 }
 
@@ -74,17 +74,21 @@ func TestCheckNoDepartures(t *testing.T) {
 	trainName := "ICE 123"
 	limit := 3
 
-	expectedErrorMessage := "No departures found"
+	expectedChangedDepartureTimes := []string{"No departure on 2018-06-11"}
+	expectedChanged := true
 
 	schedule.TargetTime, _ = time.Parse(time.RFC3339, "2018-06-11T00:00:00Z")
-	_, _, err := checker.Check(locationID, daysOfInterest, departureTime, trainName, limit)
-	if err == nil {
+	changed, changedDepartureTimes, err := checker.Check(locationID, daysOfInterest, departureTime, trainName, limit)
+	if err != nil {
 		t.Fatalf("checker.Check() failed: %s", err)
 	}
 
-	errorMessage := err.Error()
-	if expectedErrorMessage != errorMessage {
-		t.Fatalf("expected error to say %s, but got: %s", expectedErrorMessage, errorMessage)
+	if expectedChanged != changed {
+		t.Fatal("expected changed departures, but they didn't")
+	}
+
+	if expectedChangedDepartureTimes[0] != changedDepartureTimes[0] {
+		t.Fatalf("expected changed departure to be %s, got %s", expectedChangedDepartureTimes[0], changedDepartureTimes[0])
 	}
 }
 
@@ -96,7 +100,6 @@ func exampleBahnApiServer() *httptest.Server {
 
 func exampleBahnApiServerEmptyResonse() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("URL: ", r.URL.String())
 		fmt.Fprintln(w, "[]")
 	}))
 }

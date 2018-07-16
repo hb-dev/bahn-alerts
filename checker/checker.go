@@ -21,7 +21,10 @@ func Check(locationID int, daysOfInterest []string, departureTime, trainName str
 	}
 
 	for _, s := range schedule {
-		time := strings.Split(s, "T")[1]
+		time := s
+		if !strings.HasPrefix(s, "No departure on") {
+			time = strings.Split(s, "T")[1]
+		}
 		if departureTime != time {
 			changedDepartureTimes = append(changedDepartureTimes, s)
 		}
