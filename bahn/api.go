@@ -2,6 +2,8 @@ package bahn
 
 import (
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"time"
 )
@@ -19,6 +21,11 @@ func getJSON(url string, target interface{}) error {
 		return err
 	}
 	defer r.Body.Close()
+
+	if r.StatusCode != 200 {
+		body, _ := ioutil.ReadAll(r.Body)
+		return fmt.Errorf("Bahn API Server responded with %d: %s", r.StatusCode, string(body))
+	}
 
 	return json.NewDecoder(r.Body).Decode(target)
 }
