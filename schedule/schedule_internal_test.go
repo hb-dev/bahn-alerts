@@ -93,7 +93,7 @@ func TestDepartureTimeOfTrainNotFound(t *testing.T) {
 	}
 	trainName := "ICE 123"
 
-	expected := ""
+	expected := "No departure found"
 
 	departureTimeOfTrain := departureTimeOfTrain(&departures, trainName)
 
