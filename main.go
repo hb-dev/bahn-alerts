@@ -8,17 +8,16 @@ import (
 func main() {
 	locationID := 8011956 // Jena Paradies
 	time := "06:51"
-	trainName := "IsCE 1526"
+	trainName := "ICE 1526"
 	daysOfInterest := []string{"Monday", "Tuesday", "Wednesday", "Thursday"}
 
-	changed, changedDepartureTimes, err := checker.Check(locationID, daysOfInterest, time, trainName, 10)
+	// limit > 9 -> 500 Response from bahn API
+	_, changedDepartureTimes, err := checker.Check(locationID, daysOfInterest, time, trainName, 9)
 	if err != nil {
 		panic(err)
 	}
 
-	if changed {
-		fmt.Println("Schedule changed:", changedDepartureTimes)
-	}
+	fmt.Println("Changed departure Times:", changedDepartureTimes)
 
 	// define alert parameters
 	// alert changed schedule

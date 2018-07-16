@@ -28,6 +28,9 @@ func Schedule(locationID int, trainName string, daysOfInterest []string, limit i
 			}
 			departureTimeOfTrain := departureTimeOfTrain(departures, trainName)
 			if departureTimeOfTrain != "" {
+				if departureTimeOfTrain == "No departure found" {
+					departureTimeOfTrain = fmt.Sprintf("No departure on %s", date)
+				}
 				schedule = append(schedule, departureTimeOfTrain)
 				count++
 			}
@@ -45,7 +48,7 @@ func departureTimeOfTrain(departures *bahn.DepartureCollection, trainName string
 		}
 	}
 
-	return ""
+	return fmt.Sprintf("No departure found")
 }
 
 func dateOfInterest(t time.Time, daysOfInterestMap *map[string]bool) bool {
