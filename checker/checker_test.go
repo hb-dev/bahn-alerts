@@ -55,10 +55,16 @@ func TestCheckBahnAPIError(t *testing.T) {
 	trainName := "ICE 123"
 	limit := 3
 
+	expectedChangedDepartureTimes := map[string]string{"2018-06-11": "No departure (API Error)"}
+
 	schedule.TargetDate = "2018-06-11"
-	_, _, err := checker.Check(locationID, daysOfInterest, departureTime, trainName, limit)
-	if err == nil {
-		t.Fatal("expected checker.Check() to fail, but it didn't")
+	_, changedDepartureTimes, err := checker.Check(locationID, daysOfInterest, departureTime, trainName, limit)
+	if err != nil {
+		t.Fatalf("checker.Check() failed: %s", err)
+	}
+
+	if expectedChangedDepartureTimes["2018-06-11"] != changedDepartureTimes["2018-06-11"] {
+		t.Fatalf("expected changed departure to be %s, got %s", expectedChangedDepartureTimes["2018-06-11"], changedDepartureTimes["2018-06-11"])
 	}
 }
 
@@ -73,7 +79,7 @@ func TestCheckNoDepartures(t *testing.T) {
 	trainName := "ICE 123"
 	limit := 3
 
-	expectedChangedDepartureTimes := map[string]string{"0": "No departures found"}
+	expectedChangedDepartureTimes := map[string]string{"2018-06-11": "No departure"}
 	expectedChanged := true
 
 	schedule.TargetDate = "2018-06-11"
@@ -82,12 +88,14 @@ func TestCheckNoDepartures(t *testing.T) {
 		t.Fatalf("checker.Check() failed: %s", err)
 	}
 
+	fmt.Println("CHANGED:", changedDepartureTimes)
+
 	if expectedChanged != changed {
 		t.Fatal("expected changed departures, but they didn't")
 	}
 
-	if expectedChangedDepartureTimes["0"] != changedDepartureTimes["0"] {
-		t.Fatalf("expected changed departure to be %s, got %s", expectedChangedDepartureTimes["0"], changedDepartureTimes["0"])
+	if expectedChangedDepartureTimes["2018-06-11"] != changedDepartureTimes["2018-06-11"] {
+		t.Fatalf("expected changed departure to be %s, got %s", expectedChangedDepartureTimes["2018-06-11"], changedDepartureTimes["2018-06-11"])
 	}
 }
 

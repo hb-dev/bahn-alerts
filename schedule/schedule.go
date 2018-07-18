@@ -21,7 +21,10 @@ func Schedule(locationID int, trainName, departureTime string, daysOfInterest []
 			date := timeToDateString(t)
 			departures, err := bahn.Departures(locationID, dateTimeStringWithTolerance(t))
 			if err != nil {
-				return schedule, err
+				schedule[date] = "No departure (API Error)"
+				count++
+				t = t.AddDate(0, 0, 1)
+				continue
 			}
 			if len(*departures) == 0 {
 				schedule[date] = "No departure"

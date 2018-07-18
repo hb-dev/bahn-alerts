@@ -13,11 +13,6 @@ func Check(locationID int, daysOfInterest []string, departureTime, trainName str
 		return changed, changedDepartureTimes, err
 	}
 
-	if len(schedule) < 1 {
-		changed = true
-		return changed, map[string]string{"0": "No departures found"}, nil
-	}
-
 	for date, time := range schedule {
 		if departureTime != time {
 			changedDepartureTimes[date] = time

@@ -7,9 +7,12 @@ import (
 
 func main() {
 	locationID := 8011956 // Jena Paradies
-	time := "06:51"
+	// locationID := 8010205 // Leipzig Hbf
+	time := "06:50"
+	// time := "15:46"
 	trainName := "ICE 1526"
-	daysOfInterest := []string{"Monday", "Tuesday", "Wednesday", "Thursday"}
+	// trainName := "IC 2060"
+	daysOfInterest := []string{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"}
 
 	// limit > 9 -> 500 Response from bahn API
 	_, changedDepartureTimes, err := checker.Check(locationID, daysOfInterest, time, trainName, 9)

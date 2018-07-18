@@ -49,9 +49,20 @@ func TestScheduleBahnAPIError(t *testing.T) {
 	daysOfInterest := []string{"Monday"}
 	limit := 3
 
-	_, err := schedule.Schedule(locationID, trainName, departureTime, daysOfInterest, limit)
-	if err == nil {
-		t.Fatal("expected schedule.Schedule() to fail, but it didn't")
+	expected := map[string]string{
+		"2018-06-11": "No departure (API Error)",
+		"2018-06-18": "No departure (API Error)",
+		"2018-06-25": "No departure (API Error)",
+	}
+
+	schedule.TargetDate = "2018-06-11"
+	trainSchedule, err := schedule.Schedule(locationID, trainName, departureTime, daysOfInterest, limit)
+	if err != nil {
+		t.Fatalf("schedule.Schedule() failed: %s", err)
+	}
+
+	if expected["2018-06-11"] != trainSchedule["2018-06-11"] {
+		t.Fatalf("expected schedule item to be %s, got %s", expected["2018-06-11"], trainSchedule["2018-06-11"])
 	}
 }
 
