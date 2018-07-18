@@ -16,12 +16,12 @@ type Departure struct {
 
 type DepartureCollection []Departure
 
-func Departures(locationID int, date string) (*DepartureCollection, error) {
-	return getDepartures(locationID, date)
+func Departures(locationID int, dateTime string) (*DepartureCollection, error) {
+	return getDepartures(locationID, dateTime)
 }
 
-func getDepartures(locationID int, date string) (*DepartureCollection, error) {
-	path := fmt.Sprintf("departureBoard/%d?date=%s", locationID, date)
+func getDepartures(locationID int, dateTime string) (*DepartureCollection, error) {
+	path := fmt.Sprintf("departureBoard/%d?date=%s", locationID, dateTime)
 
 	departures := new(DepartureCollection)
 	if err := getJSON(apiURL(path), departures); err != nil {

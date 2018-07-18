@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
 
 	"github.com/hb-dev/bahn-alerts/bahn"
 	"github.com/hb-dev/bahn-alerts/checker"
@@ -23,14 +22,14 @@ func TestCheck(t *testing.T) {
 	trainName := "ICE 123"
 	limit := 3
 
-	expectedChangedDepartureTimes := []string{
-		"2018-06-11T06:51",
-		"2018-06-12T06:51",
-		"2018-06-15T06:51",
+	expectedChangedDepartureTimes := map[string]string{
+		"2018-06-11": "06:51",
+		"2018-06-12": "06:51",
+		"2018-06-15": "06:51",
 	}
 	expectedChanged := true
 
-	schedule.TargetTime, _ = time.Parse(time.RFC3339, "2018-06-11T00:00:00Z")
+	schedule.TargetDate = "2018-06-11"
 	changed, changedDepartureTimes, err := checker.Check(locationID, daysOfInterest, departureTime, trainName, limit)
 	if err != nil {
 		t.Fatalf("checker.Check() failed: %s", err)
@@ -40,8 +39,8 @@ func TestCheck(t *testing.T) {
 		t.Fatal("expected changed departures, but they didn't")
 	}
 
-	if expectedChangedDepartureTimes[0] != changedDepartureTimes[0] {
-		t.Fatalf("expected changed departure to be %s, got %s", expectedChangedDepartureTimes[0], changedDepartureTimes[0])
+	if expectedChangedDepartureTimes["2018-06-11"] != changedDepartureTimes["2018-06-11"] {
+		t.Fatalf("expected changed departure to be %s, got %s", expectedChangedDepartureTimes["2018-06-11"], changedDepartureTimes["2018-06-11"])
 	}
 }
 
@@ -56,7 +55,7 @@ func TestCheckBahnAPIError(t *testing.T) {
 	trainName := "ICE 123"
 	limit := 3
 
-	schedule.TargetTime, _ = time.Parse(time.RFC3339, "2018-06-11T00:00:00Z")
+	schedule.TargetDate = "2018-06-11"
 	_, _, err := checker.Check(locationID, daysOfInterest, departureTime, trainName, limit)
 	if err == nil {
 		t.Fatal("expected checker.Check() to fail, but it didn't")
@@ -74,10 +73,10 @@ func TestCheckNoDepartures(t *testing.T) {
 	trainName := "ICE 123"
 	limit := 3
 
-	expectedChangedDepartureTimes := []string{"No departure on 2018-06-11"}
+	expectedChangedDepartureTimes := map[string]string{"0": "No departures found"}
 	expectedChanged := true
 
-	schedule.TargetTime, _ = time.Parse(time.RFC3339, "2018-06-11T00:00:00Z")
+	schedule.TargetDate = "2018-06-11"
 	changed, changedDepartureTimes, err := checker.Check(locationID, daysOfInterest, departureTime, trainName, limit)
 	if err != nil {
 		t.Fatalf("checker.Check() failed: %s", err)
@@ -87,8 +86,8 @@ func TestCheckNoDepartures(t *testing.T) {
 		t.Fatal("expected changed departures, but they didn't")
 	}
 
-	if expectedChangedDepartureTimes[0] != changedDepartureTimes[0] {
-		t.Fatalf("expected changed departure to be %s, got %s", expectedChangedDepartureTimes[0], changedDepartureTimes[0])
+	if expectedChangedDepartureTimes["0"] != changedDepartureTimes["0"] {
+		t.Fatalf("expected changed departure to be %s, got %s", expectedChangedDepartureTimes["0"], changedDepartureTimes["0"])
 	}
 }
 
@@ -111,7 +110,7 @@ func exampleFailingBahnAPIServer() *httptest.Server {
 }
 
 var departuresAPIResponses = map[string]string{
-	"/departureBoard/87654321?date=2018-06-11": `
+	"/departureBoard/87654321?date=2018-06-11T06:50": `
     [
       {
         "name": "ICE 123",
@@ -127,7 +126,7 @@ var departuresAPIResponses = map[string]string{
       }
 		]
   `,
-	"/departureBoard/87654321?date=2018-06-12": `
+	"/departureBoard/87654321?date=2018-06-12T06:50": `
 		[
 			{
 				"name": "ICE 123",
@@ -143,7 +142,7 @@ var departuresAPIResponses = map[string]string{
 			}
 		]
 	`,
-	"/departureBoard/87654321?date=2018-06-15": `
+	"/departureBoard/87654321?date=2018-06-15T06:50": `
 		[
 			{
 				"name": "ICE 123",

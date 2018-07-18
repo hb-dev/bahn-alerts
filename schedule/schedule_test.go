@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
 
 	"github.com/hb-dev/bahn-alerts/bahn"
 	"github.com/hb-dev/bahn-alerts/schedule"
@@ -18,23 +17,24 @@ func TestSchedule(t *testing.T) {
 
 	locationID := 87654321
 	trainName := "ICE 123"
+	departureTime := "06:50"
 	daysOfInterest := []string{"Monday", "Tuesday", "Friday"}
 	limit := 3
 
-	expected := []string{
-		"2018-06-11T06:51",
-		"2018-06-12T06:51",
-		"2018-06-15T06:51",
+	expected := map[string]string{
+		"2018-06-11": "06:51",
+		"2018-06-12": "06:51",
+		"2018-06-15": "06:51",
 	}
 
-	schedule.TargetTime, _ = time.Parse(time.RFC3339, "2018-06-11T00:00:00Z")
-	trainSchedule, err := schedule.Schedule(locationID, trainName, daysOfInterest, limit)
+	schedule.TargetDate = "2018-06-11"
+	trainSchedule, err := schedule.Schedule(locationID, trainName, departureTime, daysOfInterest, limit)
 	if err != nil {
 		t.Fatalf("schedule.Schedule() failed: %s", err)
 	}
 
-	if expected[0] != trainSchedule[0] {
-		t.Fatalf("expected schedule item to be %s, got %s", expected[0], trainSchedule[0])
+	if expected["2018-06-11"] != trainSchedule["2018-06-11"] {
+		t.Fatalf("expected schedule item to be %s, got %s", expected["2018-06-11"], trainSchedule["2018-06-11"])
 	}
 }
 
@@ -45,10 +45,11 @@ func TestScheduleBahnAPIError(t *testing.T) {
 
 	locationID := 87654321
 	trainName := "ICE 123"
+	departureTime := "06:50"
 	daysOfInterest := []string{"Monday"}
 	limit := 3
 
-	_, err := schedule.Schedule(locationID, trainName, daysOfInterest, limit)
+	_, err := schedule.Schedule(locationID, trainName, departureTime, daysOfInterest, limit)
 	if err == nil {
 		t.Fatal("expected schedule.Schedule() to fail, but it didn't")
 	}
@@ -61,19 +62,20 @@ func TestScheduleBahnAPIEmptyResponse(t *testing.T) {
 
 	locationID := 87654321
 	trainName := "ICE 123"
+	departureTime := "06:50"
 	daysOfInterest := []string{"Monday"}
 	limit := 3
 
-	expectedMessage := "No departure on 2018-06-11"
+	expectedMessage := "No departure"
 
-	schedule.TargetTime, _ = time.Parse(time.RFC3339, "2018-06-11T00:00:00Z")
-	trainSchedule, err := schedule.Schedule(locationID, trainName, daysOfInterest, limit)
+	schedule.TargetDate = "2018-06-11"
+	trainSchedule, err := schedule.Schedule(locationID, trainName, departureTime, daysOfInterest, limit)
 	if err != nil {
 		t.Fatalf("schedule.Schedule() failed: %s", err)
 	}
 
-	if expectedMessage != trainSchedule[0] {
-		t.Fatalf("expected schedule message to be %s, but got %s", expectedMessage, trainSchedule[0])
+	if expectedMessage != trainSchedule["2018-06-11"] {
+		t.Fatalf("expected schedule message to be %s, but got %s", expectedMessage, trainSchedule["2018-06-11"])
 	}
 }
 
@@ -96,7 +98,7 @@ func exampleFailingBahnAPIServer() *httptest.Server {
 }
 
 var departuresAPIResponses = map[string]string{
-	"/departureBoard/87654321?date=2018-06-11": `
+	"/departureBoard/87654321?date=2018-06-11T06:50": `
     [
       {
         "name": "ICE 123",
@@ -112,7 +114,7 @@ var departuresAPIResponses = map[string]string{
       }
 		]
   `,
-	"/departureBoard/87654321?date=2018-06-12": `
+	"/departureBoard/87654321?date=2018-06-12T06:50": `
 		[
 			{
 				"name": "ICE 123",
@@ -128,7 +130,7 @@ var departuresAPIResponses = map[string]string{
 			}
 		]
 	`,
-	"/departureBoard/87654321?date=2018-06-15": `
+	"/departureBoard/87654321?date=2018-06-15T06:50": `
 		[
 			{
 				"name": "ICE 123",

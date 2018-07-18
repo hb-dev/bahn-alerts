@@ -14,7 +14,7 @@ func TestGetDepartures(t *testing.T) {
 	defer ts.Close()
 	bahn.APIURL = ts.URL
 
-	departures, err := bahn.Departures(123, "date")
+	departures, err := bahn.Departures(123, "dateTime")
 	if err != nil {
 		t.Fatalf("bahn.Departures() failed: %s", err)
 	}
@@ -33,7 +33,7 @@ func TestGetDeparturesAPIError(t *testing.T) {
 	defer ts.Close()
 	bahn.APIURL = ts.URL
 
-	_, err := bahn.Departures(123, "date")
+	_, err := bahn.Departures(123, "dateTime")
 	if err == nil {
 		t.Fatal("bahn.Departures() should have failed, but it didn't")
 	}

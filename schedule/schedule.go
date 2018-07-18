@@ -2,36 +2,34 @@ package schedule
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/hb-dev/bahn-alerts/bahn"
 )
 
-var TargetTime = time.Now()
+var TargetDate = timeToDateString(time.Now())
 
-func Schedule(locationID int, trainName string, daysOfInterest []string, limit int) ([]string, error) {
-	t := TargetTime
+func Schedule(locationID int, trainName, departureTime string, daysOfInterest []string, limit int) (map[string]string, error) {
+	t := stringToDateTime(TargetDate, departureTime)
 	daysOfInterestMap := daysOfInterestMap(daysOfInterest)
-	schedule := make([]string, 0)
+	schedule := make(map[string]string, 0)
 
 	count := 1
 	for count <= limit {
 		if dateOfInterest(t, daysOfInterestMap) {
 			date := timeToDateString(t)
-			departures, err := bahn.Departures(locationID, date)
+			departures, err := bahn.Departures(locationID, dateTimeStringWithTolerance(t))
 			if err != nil {
 				return schedule, err
 			}
 			if len(*departures) == 0 {
-				schedule = append(schedule, fmt.Sprintf("No departure on %s", date))
+				schedule[date] = "No departure"
 				count++
 			}
 			departureTimeOfTrain := departureTimeOfTrain(departures, trainName)
 			if departureTimeOfTrain != "" {
-				if departureTimeOfTrain == "No departure found" {
-					departureTimeOfTrain = fmt.Sprintf("No departure on %s", date)
-				}
-				schedule = append(schedule, departureTimeOfTrain)
+				schedule[date] = departureTimeOfTrain
 				count++
 			}
 		}
@@ -44,11 +42,11 @@ func Schedule(locationID int, trainName string, daysOfInterest []string, limit i
 func departureTimeOfTrain(departures *bahn.DepartureCollection, trainName string) string {
 	for _, departure := range *departures {
 		if departure.TrainName == trainName {
-			return departure.DateTime
+			return strings.Split(departure.DateTime, "T")[1]
 		}
 	}
 
-	return fmt.Sprintf("No departure found")
+	return fmt.Sprintf("No departure")
 }
 
 func dateOfInterest(t time.Time, daysOfInterestMap *map[string]bool) bool {
@@ -75,4 +73,17 @@ func daysOfInterestMap(daysOfInterest []string) *map[string]bool {
 
 func timeToDateString(t time.Time) string {
 	return t.Local().Format("2006-01-02")
+}
+
+func timeToDateTimeString(t time.Time) string {
+	return t.Local().Format("2006-01-02T15:04")
+}
+
+func stringToDateTime(d, t string) time.Time {
+	dateTime, _ := time.Parse("2006-01-02T15:04", fmt.Sprintf("%sT%s", d, t))
+	return dateTime
+}
+
+func dateTimeStringWithTolerance(t time.Time) string {
+	return timeToDateTimeString(t.Add(time.Hour * -2))
 }

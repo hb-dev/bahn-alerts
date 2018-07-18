@@ -1,32 +1,26 @@
 package checker
 
 import (
-	"strings"
-
 	"github.com/hb-dev/bahn-alerts/schedule"
 )
 
-func Check(locationID int, daysOfInterest []string, departureTime, trainName string, limit int) (bool, []string, error) {
+func Check(locationID int, daysOfInterest []string, departureTime, trainName string, limit int) (bool, map[string]string, error) {
 	changed := false
-	changedDepartureTimes := make([]string, 0)
+	changedDepartureTimes := make(map[string]string, 0)
 
-	schedule, err := schedule.Schedule(locationID, trainName, daysOfInterest, limit)
+	schedule, err := schedule.Schedule(locationID, trainName, departureTime, daysOfInterest, limit)
 	if err != nil {
 		return changed, changedDepartureTimes, err
 	}
 
 	if len(schedule) < 1 {
 		changed = true
-		return changed, []string{"No Departures found"}, nil
+		return changed, map[string]string{"0": "No departures found"}, nil
 	}
 
-	for _, s := range schedule {
-		time := s
-		if !strings.HasPrefix(s, "No departure on") {
-			time = strings.Split(s, "T")[1]
-		}
+	for date, time := range schedule {
 		if departureTime != time {
-			changedDepartureTimes = append(changedDepartureTimes, s)
+			changedDepartureTimes[date] = time
 		}
 	}
 
